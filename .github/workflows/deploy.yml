@@ -41,4 +41,5 @@ jobs:
             --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/qa-frontend \
             --platform managed \
             --region us-central1 \
-            --allow-unauthenticated
+            --allow-unauthenticated \
+            --port 8080
