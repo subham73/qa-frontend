@@ -1,15 +1,15 @@
-# Build stage
-FROM node:18-alpine AS build
+# Stage 1: Build
+FROM node:20-alpine AS build
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci
+COPY package.json package-lock.json ./
+RUN npm install
 COPY . .
 RUN npm run build
 
-# Serve stage
-FROM nginx:alpine
-COPY --from=build /app/dist /usr/share/nginx/html
-# Expose the port that Cloud Run expects
+# Stage 2: Serve
+FROM node:20-alpine
+WORKDIR /app
+COPY --from=build /app/dist ./dist
+RUN npm install -g serve
 ENV PORT 8080
-EXPOSE 8080
-CMD ["sh", "-c", "envsubst '$PORT' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"]
+CMD ["serve", "-s", "dist", "-l", "8080"]
